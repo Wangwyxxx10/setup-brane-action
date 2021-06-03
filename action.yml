@@ -19,13 +19,6 @@ outputs:
 runs:
   using: composite
   steps:
-    # - uses: actions/checkout@v2
-    #   with:
-    #     repository: onnovalkering/brane
-    #     # path: ./brane-src
-    #     path: ./brane
-    #     fetch-depth: 1
-
     - name: Install the brane CLI
       shell: bash
       id: install_brane_cli
@@ -35,9 +28,6 @@ runs:
           -v "$HOME/.local/bin":/binary \
           onnovalkering/brane-cli \
           -c "cp /brane /binary"
-        # sudo chown -R $(whoami) "$HOME/.local/bin"
-        # sudo chmod -R 775 "$HOME/.local/bin"
-        # ls -lia "$HOME/.local/bin/"
         echo "$HOME/.local/bin" >> $GITHUB_PATH
         sudo docker buildx create --use
         sudo $HOME/.local/bin/brane list
