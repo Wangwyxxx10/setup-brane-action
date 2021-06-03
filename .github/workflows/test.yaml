@@ -28,4 +28,5 @@ jobs:
       - name: run brane command
         run: |
           brane --help
-          echo "${{ steps.brane_setup.outputs.jupyterlab_token }}"
+          echo "Jupyterlab token: ${{ steps.brane_setup.outputs.jupyterlab_token }}"
+          docker ps

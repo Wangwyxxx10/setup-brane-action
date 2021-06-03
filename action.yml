@@ -19,7 +19,7 @@ inputs:
     default: true
 outputs:
   jupyterlab_token:
-    value: ${{ steps.start_brane_ide.outputs.JUPYTERLAB_TOKEN }}
+    value: ${{ steps.start_brane_ide.outputs.jupyterlab_token }}
 runs:
   using: composite
   steps:
@@ -71,8 +71,8 @@ runs:
       run: |
         if [[ "$START_IDE" == "true" ]]; then
           make -C "$BRANE_SRC" start-ide
-          export JUPYTERLAB_TOKEN=$(make -C brane jupyterlab-token)
-          echo "::set-output name=JUPYTERLAB_TOKEN::${JUPYTERLAB_TOKEN}"
+          export JUPYTERLAB_TOKEN=$(make -C "$BRANE_SRC" jupyterlab-token)
+          echo "::set-output name=jupyterlab_token::${JUPYTERLAB_TOKEN}"
         else
           echo "skipping starting brane IDE..."
         fi
