@@ -27,6 +27,7 @@ runs:
     #     fetch-depth: 1
 
     - name: Install the brane CLI
+      shell: bash
       id: install_brane_cli
       run: |
         docker run --rm \
@@ -48,7 +49,8 @@ runs:
         echo "START_INSTANCE=$(echo ${{ inputs.start_instance }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
         echo "START_IDE=$(echo ${{ inputs.start_ide }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
 
-    - shell: bash
+    - name: Start brane instance
+      shell: bash
       id: start_brane_instance
       run: |
         if [[ "$START_INSTANCE" == "true" ]] || [[ "$START_IDE" == "true" ]]; then
@@ -58,7 +60,8 @@ runs:
           echo "skipping starting brane instance..."
         fi
 
-    - shell: bash
+    - name: Start brane IDE
+      shell: bash
       id: start_brane_ide
       run: |
         if [[ "$START_IDE" == "true" ]]; then
