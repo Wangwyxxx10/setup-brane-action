@@ -29,6 +29,7 @@ runs:
           onnovalkering/brane-cli \
           -c "cp /brane /binary"
         echo "$HOME/.local/bin" >> $GITHUB_PATH
+        docker buildx create --use
         sudo docker buildx create --use
         sudo $HOME/.local/bin/brane list
 

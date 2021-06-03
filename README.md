@@ -1,10 +1,10 @@
 ## setup brane action
 
-GitHub action to setup brane.
+GitHub action to setup [brane](https://github.com/onnovalkering/brane).
 
 #### Usage
 
-**Note**: Make sure the runner or container image you use the action with has at least `wget`/`curl`, `unzip` and a java jdk installed.
+**Note**: Make sure the runner or container image you use the action with has at least `docker`, `git` and `make` installed.
 
 ```yaml
 # .github/workflows/ci.yml
