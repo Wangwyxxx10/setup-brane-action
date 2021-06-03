@@ -1,0 +1,79 @@
+name: setup-brane-action
+description: setup brane in your actions workflow
+author: romnn
+branding:
+  icon: target
+  color: black
+inputs:
+  start_instance:
+    description: starts a brane instance
+    required: false
+    default: false
+  start_ide:
+    description: starts a brane IDE
+    required: false
+    default: false
+outputs:
+  jupyterlab_token:
+    value: ${{ steps.start_brane_ide.outputs.JUPYTERLAB_TOKEN }}
+runs:
+  using: composite
+  steps:
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+      with:
+        install: true
+        driver: docker-container
+        driver-opts: |
+          image=moby/buildkit:master
+          network=host
+
+    - uses: actions/checkout@v2
+      with:
+        repository: onnovalkering/brane
+        # path: ./brane-src
+        path: ./brane
+        fetch-depth: 1
+
+    - name: Install the brane CLI
+      id: install_brane_cli
+      run: |
+        docker run --rm \
+          --entrypoint "/bin/sh" \
+          -v "$HOME/.local/bin":/binary \
+          onnovalkering/brane-cli \
+          -c "cp /brane /binary"
+        # sudo chown -R $(whoami) "$HOME/.local/bin"
+        # sudo chmod -R 775 "$HOME/.local/bin"
+        # ls -lia "$HOME/.local/bin/"
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+        sudo docker buildx create --use
+        sudo $HOME/.local/bin/brane list
+
+    - shell: bash
+      run: |
+        echo "START_INSTANCE=$(echo ${{ inputs.start_instance }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
+        echo "START_IDE=$(echo ${{ inputs.start_ide }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
+
+    - shell: bash
+      id: start_brane_instance
+      run: |
+        if [[ "$START_INSTANCE" == "true" ]] || [[ "$START_IDE" == "true" ]]; then
+          cp -iv ./brane/contrib/config/infra-local-vm.yml ./brane/infra.yml
+          make -C brane start-instance
+        else
+          echo "skipping starting brane instance..."
+        fi
+
+    - shell: bash
+      id: start_brane_ide
+      run: |
+        if [[ "$START_IDE" == "true" ]]; then
+          make -C brane start-ide
+          export JUPYTERLAB_TOKEN=$(make -C brane jupyterlab-token)
+          echo "::set-output name=JUPYTERLAB_TOKEN::${JUPYTERLAB_TOKEN}"
+        else
+          echo "skipping starting brane IDE..."
+        fi

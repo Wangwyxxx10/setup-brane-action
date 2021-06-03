@@ -1,0 +1,25 @@
+name: test
+
+on: ['push']
+
+jobs:
+  setup-brane:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        start_instance: ['true', 'false']
+        start_ide: ['true', 'false']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: setup brane
+        uses: ./
+        with:
+          start_instance: ${{ matrix.start_instance }}
+          start_ide: ${{ matrix.start_ide }}
+        
+      - name: run brane command
+        run: |
+          brane --help
