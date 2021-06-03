@@ -1,0 +1,78 @@
+version: '3.5'
+
+services:
+  cassandra:
+    image: cassandra:4.0
+    ports:
+      - "127.0.0.1:9042:9042"
+    restart: always
+
+  kafka:
+    image: confluentinc/cp-kafka:5.5.1
+    depends_on:
+      - zookeeper
+    ports:
+      - "127.0.0.1:9092:9092"
+    restart: always
+    environment:
+      KAFKA_BROKER_ID: 0
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: DOCKER://kafka:29092,HOST://kafka:9092
+      KAFKA_ADVERTISED_LISTENERS: DOCKER://kafka:29092,HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: DOCKER:PLAINTEXT,HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_NUM_PARTITIONS: 1
+      CONFLUENT_SUPPORT_METRICS_ENABLE: 0
+
+  minio:
+    image: minio/minio
+    ports:
+      - "127.0.0.1:9000:9000"
+    command: server /data
+    restart: always
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    volumes:
+      - data:/data
+
+  postgres:
+    image: postgres:12
+    ports:
+      - "127.0.0.1:5432:5432"
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+
+  redis:
+    image: redis:6-alpine
+    ports:
+      - "127.0.0.1:6379:6379"
+    restart: always
+
+  registry:
+    image: registry:2
+    ports:
+      - "127.0.0.1:5000:5000"
+    restart: always
+
+  xenon:
+    image: onnovalkering/xenon-grpc
+    ports:
+      - "127.0.0.1:50051:50051"
+    restart: always
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:5.5.1
+    environment:
+      ZOOKEEPER_CLIENT_PORT: "2181"
+    restart: always
+
+networks:
+  default:
+    external:
+      name: kind
+
+volumes:
+  data:

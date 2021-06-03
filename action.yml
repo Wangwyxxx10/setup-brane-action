@@ -13,6 +13,10 @@ inputs:
     description: starts a brane IDE
     required: false
     default: false
+  use_prebuilt_images:
+    description: use prebuilt docker images for bootstrapping the brane instance
+    required: false
+    default: true
 outputs:
   jupyterlab_token:
     value: ${{ steps.start_brane_ide.outputs.JUPYTERLAB_TOKEN }}
@@ -33,20 +37,30 @@ runs:
         sudo docker buildx create --use
         sudo $HOME/.local/bin/brane list
 
+    - name: Read input variables
+      shell: bash
+      run: |
+        echo "START_INSTANCE=$(echo ${{ inputs.start_instance }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
+        echo "START_IDE=$(echo ${{ inputs.start_ide }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
+        echo "USE_PREBUILT_IMAGES=$(echo ${{ inputs.use_prebuilt_images }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
+
     - name: Download brane source
       shell: bash
       run: |
-        git clone --depth 1 https://github.com/onnovalkering/brane.git
-        echo "START_INSTANCE=$(echo ${{ inputs.start_instance }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
-        echo "START_IDE=$(echo ${{ inputs.start_ide }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
+        if [[ "$USE_PREBUILT_IMAGES" == "true" ]]; then
+          echo "BRANE_SRC=${{ github.action_path }}/prebuilt" >> $GITHUB_ENV
+        else
+          git clone --depth 1 https://github.com/onnovalkering/brane.git
+          cp -iv ./brane/contrib/config/infra-local-vm.yml ./brane/infra.yml
+          echo "BRANE_SRC=./brane" >> $GITHUB_ENV
+        fi
 
     - name: Start brane instance
       shell: bash
       id: start_brane_instance
       run: |
         if [[ "$START_INSTANCE" == "true" ]] || [[ "$START_IDE" == "true" ]]; then
-          cp -iv ./brane/contrib/config/infra-local-vm.yml ./brane/infra.yml
-          make -C brane start-instance
+          make -C "$BRANE_SRC" start-instance
         else
           echo "skipping starting brane instance..."
         fi
@@ -56,7 +70,7 @@ runs:
       id: start_brane_ide
       run: |
         if [[ "$START_IDE" == "true" ]]; then
-          make -C brane start-ide
+          make -C "$BRANE_SRC" start-ide
           export JUPYTERLAB_TOKEN=$(make -C brane jupyterlab-token)
           echo "::set-output name=JUPYTERLAB_TOKEN::${JUPYTERLAB_TOKEN}"
         else
