@@ -49,6 +49,7 @@ runs:
       run: |
         if [[ "$USE_PREBUILT_IMAGES" == "true" ]]; then
           echo "BRANE_SRC=${{ github.action_path }}/prebuilt" >> $GITHUB_ENV
+          echo "skipping building brane instance images..."
         else
           git clone --depth 1 https://github.com/onnovalkering/brane.git
           cp -iv ./brane/contrib/config/infra-local-vm.yml ./brane/infra.yml

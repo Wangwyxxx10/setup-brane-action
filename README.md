@@ -28,8 +28,10 @@ jobs:
     - name: 'use the brane CLI'
       run: |
         brane --help
+        # check that the brane services are running
+        docker ps
 
     - name: 'query the jupyterlab IDE access token'
       run: |
-        echo "${{ brane_setup.outputs.jupyterlab_token }}"
+        echo "${{ steps.brane_setup.outputs.jupyterlab_token }}"
 ```
