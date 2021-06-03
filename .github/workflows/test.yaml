@@ -13,8 +13,19 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+        # with:
+        #   install: true
+        #   driver: docker-container
+        #   driver-opts: |
+        #     image=moby/buildkit:master
+        #     network=host
 
       - name: setup brane
+        id: brane_setup
         uses: ./
         with:
           start_instance: ${{ matrix.start_instance }}
@@ -23,3 +34,4 @@ jobs:
       - name: run brane command
         run: |
           brane --help
+          echo "${{ brane_setup.outputs.jupyterlab_token }}"

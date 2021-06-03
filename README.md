@@ -31,5 +31,5 @@ jobs:
 
     - name: 'query the jupyterlab IDE access token'
       run: |
-        brane --help
+        echo "${{ brane_setup.outputs.jupyterlab_token }}"
 ```

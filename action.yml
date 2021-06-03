@@ -19,23 +19,12 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v1
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
-      with:
-        install: true
-        driver: docker-container
-        driver-opts: |
-          image=moby/buildkit:master
-          network=host
-
-    - uses: actions/checkout@v2
-      with:
-        repository: onnovalkering/brane
-        # path: ./brane-src
-        path: ./brane
-        fetch-depth: 1
+    # - uses: actions/checkout@v2
+    #   with:
+    #     repository: onnovalkering/brane
+    #     # path: ./brane-src
+    #     path: ./brane
+    #     fetch-depth: 1
 
     - name: Install the brane CLI
       id: install_brane_cli
@@ -52,8 +41,10 @@ runs:
         sudo docker buildx create --use
         sudo $HOME/.local/bin/brane list
 
-    - shell: bash
+    - name: Download brane source
+      shell: bash
       run: |
+        git clone --depth 1 https://github.com/onnovalkering/brane.git
         echo "START_INSTANCE=$(echo ${{ inputs.start_instance }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
         echo "START_IDE=$(echo ${{ inputs.start_ide }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
 
