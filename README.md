@@ -1,6 +1,6 @@
 ## setup brane action
 
-GitHub action to setup [brane](https://github.com/onnovalkering/brane).
+GitHub action to setup [brane](https://github.com/epi-project/brane). (Fork others' action and make some changes. Origin: https://github.com/romnn/setup-brane-action/tree/c6af2d863079aef95b15af9919e2a0122f0a884f)
 
 #### Usage
 
