@@ -2,7 +2,7 @@ version: '3.5'
 
 services:
   brane-api:
-    image: onnovalkering/brane-api
+    image: epi-project/brane/brane-api
     ports:
       - "127.0.0.1:8080:8080"
     restart: always
@@ -13,7 +13,7 @@ services:
         DEBUG: "true"
 
   brane-clb:
-    image: onnovalkering/brane-clb
+    image: epi-project/brane/brane-clb
     ports:
       - "127.0.0.1:50052:50052"
     restart: always
@@ -24,7 +24,7 @@ services:
         DEBUG: "true"
 
   brane-drv:
-    image: onnovalkering/brane-drv
+    image: epi-project/brane/brane-drv
     ports:
       - "127.0.0.1:50053:50053"
     restart: always
@@ -37,7 +37,7 @@ services:
         PACKAGE_INDEX_URL: http://brane-api:8080/packages
 
   brane-job:
-    image: onnovalkering/brane-job
+    image: epi-project/brane/brane-job
     restart: always
     volumes:
       - ./infra.yml:/infra.yml
@@ -52,7 +52,7 @@ services:
         XENON: "xenon:50051"
 
   brane-log:
-    image: onnovalkering/brane-log
+    image: epi-project/brane/brane-log
     ports:
       - "127.0.0.1:8081:8081"
     restart: always
@@ -62,7 +62,7 @@ services:
         CASSANDRA: cassandra
 
   brane-plr:
-    image: onnovalkering/brane-plr
+    image: epi-project/brane/brane-plr
     restart: always
     volumes:
       - ./infra.yml:/infra.yml
