@@ -1,14 +1,15 @@
-version: '3.5'
+version: '3'
 
 services:
-  cassandra:
-    image: cassandra:4.0
+  scylla:
+    image: scylladb/scylla:4.4.3
     ports:
       - "127.0.0.1:9042:9042"
+    command: --smp 1
     restart: always
 
   kafka:
-    image: confluentinc/cp-kafka:5.5.1
+    image: confluentinc/cp-kafka:6.2.0
     depends_on:
       - zookeeper
     ports:
@@ -25,42 +26,20 @@ services:
       KAFKA_NUM_PARTITIONS: 1
       CONFLUENT_SUPPORT_METRICS_ENABLE: 0
 
-  minio:
-    image: minio/minio
-    ports:
-      - "127.0.0.1:9000:9000"
-    command: server /data
-    restart: always
-    environment:
-      MINIO_ROOT_USER: minio
-      MINIO_ROOT_PASSWORD: minio123
-    volumes:
-      - data:/data
-
-  postgres:
-    image: postgres:12
-    ports:
-      - "127.0.0.1:5432:5432"
-    restart: always
-    environment:
-      POSTGRES_PASSWORD: postgres
-
-  redis:
-    image: redis:6-alpine
-    ports:
-      - "127.0.0.1:6379:6379"
-    restart: always
-
   registry:
     image: registry:2
     ports:
-      - "127.0.0.1:5000:5000"
+      # - "127.0.0.1:5000:5000"
+      - "0.0.0.0:5000:5000"
     restart: always
 
   xenon:
-    image: onnovalkering/xenon-grpc
+    build:
+      context: ./contrib/images
+      dockerfile: Dockerfile.xenon
     ports:
       - "127.0.0.1:50051:50051"
+    command: -v
     restart: always
 
   zookeeper:
@@ -69,10 +48,43 @@ services:
       ZOOKEEPER_CLIENT_PORT: "2181"
     restart: always
 
+  #############
+  ## JuiceFS ##
+  #############
+
+  minio:
+    image: minio/minio
+    ports:
+      # - "127.0.0.1:9000:9000"
+      - "0.0.0.0:9000:9000"
+    command: server /data
+    restart: always
+    environment:
+      MINIO_ROOT_USER: JntYwuVjKY5v5F2bPZr3aZtD
+      MINIO_ROOT_PASSWORD: qBKuJxbCNa5bSCPQb3kEyB4s
+    volumes:
+      - data:/data
+
+  redis:
+    image: redis:6-alpine
+    ports:
+      # - "127.0.0.1:6379:6379"
+      - "0.0.0.0:6379:6379"
+    restart: always
+
+  format:
+    build:
+      context: ./contrib/images
+      dockerfile: Dockerfile.juicefs
+    depends_on: 
+      - minio
+      - redis
+    command: format --access-key JntYwuVjKY5v5F2bPZr3aZtD --secret-key qBKuJxbCNa5bSCPQb3kEyB4s --storage minio --bucket http://minio:9000/data redis brane
+
 networks:
   default:
     external:
-      name: kind
+      name: brane
 
 volumes:
   data:
