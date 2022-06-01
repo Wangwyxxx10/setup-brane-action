@@ -30,7 +30,7 @@ runs:
         docker run --rm \
           --entrypoint "/bin/sh" \
           -v "$HOME/.local/bin":/binary \
-          onnovalkering/brane-cli \
+          epi-project/brane/brane-cli \
           -c "cp /brane /binary"
         echo "$HOME/.local/bin" >> $GITHUB_PATH
         docker buildx create --use
