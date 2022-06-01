@@ -2,7 +2,7 @@ version: '3.5'
 
 services:
   brane-ide:
-    image: onnovalkering/brane-ide
+    image: epi-project/brane-ide
     ports:
       - "127.0.0.1:8888:8888"
     restart: always
