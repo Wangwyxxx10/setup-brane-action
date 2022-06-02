@@ -40,7 +40,7 @@ runs:
       shell: bash
       run: |
           git clone --depth 1 https://github.com/epi-project/brane.git
-          cp -iv ./brane/contrib/config/infra-local-vm.yml ./brane/infra.yml
+          cp -iv ./brane/contrib/config/infra-local.yml ./brane/infra.yml
           echo "BRANE_SRC=./brane" >> $GITHUB_ENV
 
     - name: Start brane instance
