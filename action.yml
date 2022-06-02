@@ -48,7 +48,7 @@ runs:
       id: start_brane_instance
       run: |
         if [[ "$START_INSTANCE" == "true" ]] || [[ "$START_IDE" == "true" ]]; then
-          make -C "$BRANE_SRC" start-instance
+          ./make.sh start-instance
         else
           echo "skipping starting brane instance..."
         fi
