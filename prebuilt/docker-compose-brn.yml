@@ -1,43 +1,52 @@
-version: '3.5'
+version: '3'
 
 services:
   brane-api:
-    image: brane/brane-api
+    image: brane-api:${BRANE_VERSION:-latest}
+    container_name: brane-api
     ports:
       - "127.0.0.1:8080:8080"
     restart: always
     environment:
-        HOST: "0.0.0.0"
-        BROKERS: "kafka:29092"
-        CALLBACK_TOPIC: "clb"
+        ADDRESS: "0.0.0.0:8080"
         DEBUG: "true"
+        REGISTRY: "registry:5000"
+        SCYLLA: "scylla:9042"
 
   brane-clb:
-    image: brane/brane-clb
+    image: brane-clb:${BRANE_VERSION:-latest}
+    container_name: brane-clb
     ports:
       - "127.0.0.1:50052:50052"
     restart: always
     environment:
         ADDRESS: "0.0.0.0:50052"
         BROKERS: "kafka:29092"
-        CALLBACK_TOPIC: "clb"
         DEBUG: "true"
 
   brane-drv:
-    image: brane/brane-drv
+    image: brane-drv:${BRANE_VERSION:-latest}
+    command: --debug
+    container_name: brane-drv
     ports:
       - "127.0.0.1:50053:50053"
+    volumes:
+      - ./infra.yml:/infra.yml
     restart: always
+    links:
+      - brane-api:brane-api
     environment:
         ADDRESS: "0.0.0.0:50053"
         BROKERS: "kafka:29092"
         COMMAND_TOPIC: drv-cmd
-        EVENT_TOPIC: job-evt
         DEBUG: "true"
-        PACKAGE_INDEX_URL: http://brane-api:8080/packages
+        EVENT_TOPIC: job-evt
+        GRAPHQL_URL: "http://brane-api:8080/graphql"
 
   brane-job:
-    image: epi-project/brane/brane-job
+    image: brane-job:${BRANE_VERSION:-latest}
+    command: --debug
+    container_name: brane-job
     restart: always
     volumes:
       - ./infra.yml:/infra.yml
@@ -47,22 +56,25 @@ services:
         BROKERS: "kafka:29092"
         CALLBACK_TOPIC: clb
         COMMAND_TOPIC: plr-cmd
-        EVENT_TOPIC: job-evt
         DEBUG: "true"
+        EVENT_TOPIC: job-evt
         XENON: "xenon:50051"
 
   brane-log:
-    image: brane/brane-log
+    image: brane-log:${BRANE_VERSION:-latest}
+    container_name: brane-log
     ports:
       - "127.0.0.1:8081:8081"
     restart: always
     environment:
         BROKERS: "kafka:29092"
+        DEBUG: "true"
         EVENT_TOPIC: job-evt
-        CASSANDRA: cassandra
+        SCYLLA: "scylla:9042"
 
   brane-plr:
-    image: brane/brane-plr
+    image: brane-plr:${BRANE_VERSION:-latest}
+    container_name: brane-plr
     restart: always
     volumes:
       - ./infra.yml:/infra.yml
@@ -76,4 +88,4 @@ services:
 networks:
   default:
     external:
-      name: kind
+      name: brane
