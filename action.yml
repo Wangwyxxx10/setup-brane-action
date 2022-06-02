@@ -48,7 +48,8 @@ runs:
       id: start_brane_instance
       run: |
         if [[ "$START_INSTANCE" == "true" ]] || [[ "$START_IDE" == "true" ]]; then
-          ./make.sh start-instance
+          chmod +x $BRANE_SRC/make.sh
+          $BRANE_SRC/make.sh start-instance
         else
           echo "skipping starting brane instance..."
         fi
@@ -58,7 +59,9 @@ runs:
       id: start_brane_ide
       run: |
         if [[ "$START_IDE" == "true" ]]; then
-          make -C "$BRANE_SRC" start-ide
+          git clone https://github.com/epi-project/brane-ide.git
+          echo "BRANE_IDE_SRC=./brane-ide" >> $GITHUB_ENV
+          make -C "$BRANE_IDE__SRC" start-ide
           export JUPYTERLAB_TOKEN=$(make -C "$BRANE_SRC" jupyterlab-token)
           echo "::set-output name=jupyterlab_token::${JUPYTERLAB_TOKEN}"
         else
