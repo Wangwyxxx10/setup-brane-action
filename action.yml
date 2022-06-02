@@ -27,9 +27,10 @@ runs:
       shell: bash
       id: install_brane_cli
       run: |
-        echo "usr/local/bin" >> $GITHUB_PATH
-        sudo chmod +x usr/local/bin/brane
-        sudo usr/local/bin/brane list
+        git clone https://github.com/epi-project/brane && cd brane
+        sudo cp ./target/release/brane /usr/local/bin/brane
+        sudo chmod +x /brane
+        brane list
 
     - name: Read input variables
       shell: bash
