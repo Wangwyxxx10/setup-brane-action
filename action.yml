@@ -29,12 +29,7 @@ runs:
         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
         echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-    - name: Read input variables
-      shell: bash
-      run: |
-        echo "START_INSTANCE=$(echo ${{ inputs.start_instance }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
-        echo "START_IDE=$(echo ${{ inputs.start_ide }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
-        echo "USE_PREBUILT_IMAGES=$(echo ${{ inputs.use_prebuilt_images }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
+   
 
     - name: Download brane source
       shell: bash
