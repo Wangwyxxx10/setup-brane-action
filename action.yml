@@ -27,8 +27,7 @@ runs:
       shell: bash
       id: install_brane_cli
       run: |
-        
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
+        sudo cp ./brane /usr/local/bin/brane
         docker buildx create --use
         sudo docker buildx create --use
         sudo chmod +x $HOME/.local/bin/brane
