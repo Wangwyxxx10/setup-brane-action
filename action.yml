@@ -23,15 +23,11 @@ runs:
       shell: bash
       id: install_brane_cli
       run: |
-        docker run --rm \
-          --entrypoint "/bin/sh" \
-          -v "$HOME/.local/bin":/binary \
-          brane/brane-cli \
-          -c "cp /brane /binary"
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
-        docker buildx create --use
-        sudo docker buildx create --use
-        sudo $HOME/.local/bin/brane list
+        sudo apt-get update
+        sudo apt-get install ca-certificates curl gnupg lsb-release
+        sudo mkdir -p /etc/apt/keyrings
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
     - name: Read input variables
       shell: bash
