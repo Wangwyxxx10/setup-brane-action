@@ -27,7 +27,7 @@ runs:
       shell: bash
       id: install_brane_cli
       run: |
-- name: Install the brane CLI
+    - name: Install the brane CLI
       shell: bash
       id: install_brane_cli
       run: |
@@ -40,7 +40,7 @@ runs:
         docker buildx create --use
         sudo docker buildx create --use
         sudo $HOME/.local/bin/brane list
-  - name: Read input variables
+    - name: Read input variables
       shell: bash
       run: |
         echo "START_INSTANCE=$(echo ${{ inputs.start_instance }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
