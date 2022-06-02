@@ -16,7 +16,7 @@ inputs:
   use_prebuilt_images:
     description: use prebuilt docker images for bootstrapping the brane instance
     required: false
-    default: true
+    default: false
 outputs:
   jupyterlab_token:
     value: ${{ steps.start_brane_ide.outputs.jupyterlab_token }}
