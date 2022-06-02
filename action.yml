@@ -13,10 +13,6 @@ inputs:
     description: starts a brane IDE
     required: false
     default: false
-  use_prebuilt_images:
-    description: use prebuilt docker images for bootstrapping the brane instance
-    required: false
-    default: false
 outputs:
   jupyterlab_token:
     value: ${{ steps.start_brane_ide.outputs.jupyterlab_token }}
@@ -47,14 +43,9 @@ runs:
     - name: Download brane source
       shell: bash
       run: |
-        if [[ "$USE_PREBUILT_IMAGES" == "true" ]]; then
-          echo "BRANE_SRC=${{ github.action_path }}/prebuilt" >> $GITHUB_ENV
-          echo "skipping building brane instance images..."
-        else
           git clone --depth 1 https://github.com/epi-project/brane.git
           cp -iv ./brane/contrib/config/infra-local-vm.yml ./brane/infra.yml
           echo "BRANE_SRC=./brane" >> $GITHUB_ENV
-        fi
 
     - name: Start brane instance
       shell: bash
