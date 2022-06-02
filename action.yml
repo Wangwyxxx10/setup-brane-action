@@ -27,14 +27,11 @@ runs:
       shell: bash
       id: install_brane_cli
       run: |
-        docker run --rm \
-          --entrypoint "/bin/sh" \
-          -v "$HOME/.local/bin":/binary \
-          brane/brane-cli \
-          -c "cp /brane /binary"
+        
         echo "$HOME/.local/bin" >> $GITHUB_PATH
         docker buildx create --use
         sudo docker buildx create --use
+        sudo chmod +x $HOME/.local/bin/brane
         sudo $HOME/.local/bin/brane list
 
     - name: Read input variables
