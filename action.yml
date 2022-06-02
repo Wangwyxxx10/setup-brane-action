@@ -27,6 +27,8 @@ runs:
       shell: bash
       id: install_brane_cli
       run: |
+        chmod +x ./brane/make.sh
+        ./brane/make.sh cli
         docker run --rm \
           --entrypoint "/bin/sh" \
           -v "$HOME/.local/bin":/binary \
