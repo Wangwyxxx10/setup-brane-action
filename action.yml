@@ -1,6 +1,6 @@
 name: setup-brane-action
 description: setup brane in your actions workflow
-author: romnn
+author: Wangwyxxx10
 branding:
   icon: target
   color: black
@@ -13,6 +13,10 @@ inputs:
     description: starts a brane IDE
     required: false
     default: false
+  use_prebuilt_images:
+    description: use prebuilt docker images for bootstrapping the brane instance
+    required: false
+    default: true
 outputs:
   jupyterlab_token:
     value: ${{ steps.start_brane_ide.outputs.jupyterlab_token }}
@@ -23,29 +27,34 @@ runs:
       shell: bash
       id: install_brane_cli
       run: |
-        sudo apt-get update
-        sudo apt-get install ca-certificates curl gnupg lsb-release
-        sudo mkdir -p /etc/apt/keyrings
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-        echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-   
-
-    - name: Download brane source
+- name: Install the brane CLI
+      shell: bash
+      id: install_brane_cli
+      run: |
+        docker run --rm \
+          --entrypoint "/bin/sh" \
+          -v "$HOME/.local/bin":/binary \
+          brane/brane-cli \
+          -c "cp /brane /binary"
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+        docker buildx create --use
+        sudo docker buildx create --use
+        sudo $HOME/.local/bin/brane list
+  - name: Read input variables
       shell: bash
       run: |
-          git clone --depth 1 https://github.com/epi-project/brane.git
-          cp -iv ./brane/contrib/config/infra-local.yml ./brane/infra.yml
-          echo "BRANE_SRC=./brane" >> $GITHUB_ENV
-          sudo cp -r ./brane /usr/local/bin/brane
+        echo "START_INSTANCE=$(echo ${{ inputs.start_instance }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
+        echo "START_IDE=$(echo ${{ inputs.start_ide }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
+        echo "USE_PREBUILT_IMAGES=$(echo ${{ inputs.use_prebuilt_images }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
+
+   
 
     - name: Start brane instance
       shell: bash
       id: start_brane_instance
       run: |
         if [[ "$START_INSTANCE" == "true" ]] || [[ "$START_IDE" == "true" ]]; then
-          chmod +x $BRANE_SRC/make.sh
-          $BRANE_SRC/make.sh start-instance
+          make -C "$BRANE_SRC" start-instance
         else
           echo "skipping starting brane instance..."
         fi
@@ -55,9 +64,7 @@ runs:
       id: start_brane_ide
       run: |
         if [[ "$START_IDE" == "true" ]]; then
-          git clone https://github.com/epi-project/brane-ide.git
-          echo "BRANE_IDE_SRC=./brane-ide" >> $GITHUB_ENV
-          make -C "$BRANE_IDE__SRC" start-ide
+          make -C "$BRANE_SRC" start-ide
           export JUPYTERLAB_TOKEN=$(make -C "$BRANE_SRC" jupyterlab-token)
           echo "::set-output name=jupyterlab_token::${JUPYTERLAB_TOKEN}"
         else
